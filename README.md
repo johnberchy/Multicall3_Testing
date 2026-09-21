@@ -12,7 +12,7 @@ SEVERNTY:HIGH
 
 ##VULNERABILTY DETAILS:At #L  Multicall3.aggregate3Value()` allows a caller to batch several calls, each carrying its own native-value transfer, with a per-call `allowFailure` flag. When a call has `allowFailure = true`, carries a nonzero `value`, and that call **fails** (e.g., the target has no `receive()`/`fallback()`), the attempted value transfer is atomically reverted by the EVM — but execution of the *outer* transaction continues, and the final validation check only verifies that `msg.value` equals the *sum of all attempted values*, not the sum of *successfully delivered* values. The result: that value is never delivered anywhere, is never refunded, and permanently increases Multicall3's own contract balance. The transaction reports success. There is no event, no revert, and no recovery mechanism (Multicall3 holds no state and has no withdrawal function).
 
-##PROOF OF CONCEPT(POC): This is a contract logic and it doesn't change, it's third-party, MIT-licensed infrastructure (`github.com/mds1/multicall`) that gets deployed at the same deterministic address on most EVM-compatible chains. I made use the sepolia instead of arc while testing,the explorer is down or something and its verifiable on the sepolia eth explorer, below are details and contract address and transactions that are verifiable on the explorer
+##PROOF OF CONCEPT(POC): This is a contract logic and it doesn't change, it's third-party, MIT-licensed infrastructure that gets deployed at the same deterministic address on most EVM-compatible chains. I made use the sepolia instead of arc while testing,the explorer is down or something and its verifiable on the sepolia eth explorer, below are details and contract address and transactions that are verifiable on the explorer
 
 Deployer: 0x4f6734EeC17748975F92a7ea43B9c9385A087D52
 Balance: 0.047321775379236887 ETH
@@ -43,7 +43,7 @@ the transaction hash;
 
 ##STEPS TO REPRODUCE USING THE BASH TERMINAL
 
-``bash
+```bash
 mkdir multicall3-sepolia && cd multicall3-sepolia
 npm init -y
 npm install ethers 
@@ -53,7 +53,7 @@ COPY IN THESE THREE FILES; Multicall3-official_1.sol,compiled-artifacts-configur
  FROM MY GITHUB REPO: https://github.com/johnberchy/Multicall3_Testing.git
 
 Your folder should look like this 
-multicall3-sepolia-v2/
+multicall3-sepolia/
 ├── compiled-artifacts-configurable.json
 ├──  Multicall3-official_1.sol
 ├── valueLockPoCConfigurable (2).sol
@@ -76,19 +76,20 @@ multicall3-sepolia-v2/
 
 OPEN deploy-and-run.cjs and edit to your own actual private key with faucet inside and RPC_URL
 
-const RPC_URL = "https://eth-sepolia.g.alchemy.com/v2/alch_O4-ZTL6oHla33YKUvlVX7";
-const PRIVATE_KEY = "76bc14d1f9e510160a238cc6a73cd8939fe085e693bc124a063921cda0398297";
+const RPC_URL = "https://eth-sepolia.g.alchemy.com/v2/alch_O4-ZTL6oHla33YKUvlVX7";//created in alchemy
+const PRIVATE_KEY = "76bc14d1f9e510160a238cc6a73cd8939fe085e693bc124a063921cda0398297";// my private key for testing purpose only
 
-THEN RUN 
+THEN RUN
 
+```bash
 node deploy-and-run.cjs
-
+```
 
 ##IMPACT:  Permanent loss of user funds with no mitigation or recovery path.
 
 
 ##RECOMMENDED FIX:
-Create a second function that doesn't accept value
+Create a second function that doesn't accept value `allowFailure = true`
 
 THANK YOU AND I HOPE TO HEAR FROM YOU GUYS SOON
 
